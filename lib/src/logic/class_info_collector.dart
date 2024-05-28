@@ -23,11 +23,11 @@ class ClassInfoCollector {
     return _classInfo!;
   }
 
-  Future<void> collect(MemberDeclarationBuilder builder) async {
+  Future<void> collect(DeclarationPhaseIntrospector builder) async {
     _classInfo = await _collect(_clazz, builder);
   }
 
-  Future<ClassInfo> _collect(ClassDeclaration clazz, MemberDeclarationBuilder builder) async {
+  Future<ClassInfo> _collect(ClassDeclaration clazz, DeclarationPhaseIntrospector builder) async {
     final ClassInheritance inheritance;
     final ClassStructure structure;
     final ClassDeclaration? superClass = await builder.superOf(clazz);

@@ -5,18 +5,20 @@ import 'package:macros/macros.dart';
 import '../logic_old/common_extensions.dart';
 import '../logic_old/macro_extensions.dart';
 import 'class_info.dart';
-import 'class_info_collector.dart';
+import 'class_info_mixin.dart';
 import 'class_type.dart';
 import 'messages.dart';
 import 'types.dart';
 
-macro class WithConstructor implements ClassDeclarationsMacro {
+class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacro {
   const WithConstructor({
     this.name = '',
     this.allRequired = true,
   });
 
+  @override
   final String name;
+
   final bool allRequired;
 
   String get cName {
@@ -28,10 +30,7 @@ macro class WithConstructor implements ClassDeclarationsMacro {
 
   @override
   FutureOr<void> buildDeclarationsForClass(ClassDeclaration clazz, MemberDeclarationBuilder builder) async {
-    final ClassInfoCollector collector = ClassInfoCollector(clazz: clazz, constructorName: name);
-    await collector.collect(builder);
-
-    final ClassInfo classInfo = collector.classInfo;
+    final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
 
     final DeclarationOperation operation = switch ((classInfo.inheritance, classInfo.structure)) {
       /// ? Simple class
@@ -41,16 +40,16 @@ macro class WithConstructor implements ClassDeclarationsMacro {
       (ClassInheritance.firstborn, ClassStructure.hasFieldsAndConstructor) => _constructorExistenceError,
 
       /// ? Class, which extends from another class
-      (ClassInheritance.successor, ClassStructure.empty) => _selectSuccessorOperation(classInfo),
+      (ClassInheritance.successor, ClassStructure.empty) => _selectSuccessorDeclarationOperation(classInfo),
       (ClassInheritance.successor, ClassStructure.hasConstructor) => _constructorExistenceError,
-      (ClassInheritance.successor, ClassStructure.hasFields) => _selectSuccessorOperation(classInfo),
+      (ClassInheritance.successor, ClassStructure.hasFields) => _selectSuccessorDeclarationOperation(classInfo),
       (ClassInheritance.successor, ClassStructure.hasFieldsAndConstructor) => _constructorExistenceError,
     };
 
     await operation(classInfo: classInfo, builder: builder);
   }
 
-  DeclarationOperation _selectSuccessorOperation(ClassInfo classInfo) {
+  DeclarationOperation _selectSuccessorDeclarationOperation(ClassInfo classInfo) {
     assert(classInfo.inheritance == ClassInheritance.successor);
 
     final ClassInfo superInfo = classInfo.superInfo!;
