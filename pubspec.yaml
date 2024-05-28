@@ -1,0 +1,21 @@
+name: copy_with_macro
+description: "A @CopyWith() macros with @DeepCopy() macros as well, built on top of Metaprogramming feature of Dart"
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: '>=3.5.0-191.0.dev <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  macros: ^0.1.0-main.5
+  data_class_macro: ^0.0.0-dev.6
+  json: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  nanc_lints: ^1.0.0
+
+flutter:
