@@ -44,9 +44,13 @@ class ClassInfo {
 
   List<FormalParameterDeclaration> get namedArguments => constructor?.namedParameters.toList() ?? <FormalParameterDeclaration>[];
 
+  List<FormalParameterDeclaration> get arguments => [...posArguments, ...namedArguments];
+
   List<FormalParameterDeclaration> get superPosArguments => superInfo?.constructor?.positionalParameters.toList() ?? <FormalParameterDeclaration>[];
 
   List<FormalParameterDeclaration> get superNamedArguments => superInfo?.constructor?.namedParameters.toList() ?? <FormalParameterDeclaration>[];
+
+  List<FormalParameterDeclaration> get allSuperArguments => [...superPosArguments, ...superNamedArguments];
 
   ClassInfo copyWith({
     ClassDeclaration? declaration,

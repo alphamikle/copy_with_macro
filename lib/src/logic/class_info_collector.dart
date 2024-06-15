@@ -70,8 +70,6 @@ class ClassInfoCollector {
 
     assert(allFields.length == types.length);
 
-    (builder as Builder).logInfo('Name: ${clazz.identifier.name}; Constructor: "${constructor?.identifier.name}"; CArguments: ${classInfo.posArguments}');
-
     return classInfo.copyWith(types: types);
   }
 }

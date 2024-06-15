@@ -15,3 +15,9 @@ extension ExtendedFormalParameterDeclaration on FormalParameterDeclaration {
     return type.code;
   }
 }
+
+extension ExtendedFormalParameterDeclarationList on List<FormalParameterDeclaration> {
+  List<FormalParameterDeclaration> get nullableOnly {
+    return where((FormalParameterDeclaration it) => it.type.isNullable).toList();
+  }
+}

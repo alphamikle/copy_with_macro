@@ -12,3 +12,8 @@ typedef DefinitionOperation = Future<void> Function({
   required TypeDefinitionBuilder builder,
   required FunctionDefinitionBuilder method,
 });
+
+final Uri dartCodePackage = Uri.parse('dart:core');
+
+const String copyWithLiteral = 'copyWith';
+const String copyWithNullLiteral = 'copyWithNull';

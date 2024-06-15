@@ -15,3 +15,9 @@ extension ExtendedFieldDeclaration on FieldDeclaration {
     return type.code;
   }
 }
+
+extension ExtendedFieldDeclarationList on List<FieldDeclaration> {
+  List<FieldDeclaration> get nullableOnly {
+    return where((FieldDeclaration it) => it.type.isNullable).toList();
+  }
+}

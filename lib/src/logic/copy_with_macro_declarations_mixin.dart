@@ -15,7 +15,11 @@ mixin CopyWithMacroDeclarationsMixin on ClassInfoMixin {
     required MemberDeclarationBuilder builder,
   }) async {
     final DeclarationCode declaration = DeclarationCode.fromParts([
-      '  external ${classInfo.name} copyWith();',
+      '\n',
+      '  external ${classInfo.name} $copyWithLiteral();',
+      '\n',
+      '\n',
+      '  external ${classInfo.name} $copyWithNullLiteral();',
     ]);
     builder.declareInType(declaration);
   }
@@ -28,30 +32,44 @@ mixin CopyWithMacroDeclarationsMixin on ClassInfoMixin {
       await buildEmptyDeclaration(classInfo: classInfo, builder: builder);
       return;
     }
+    final List<FormalParameterDeclaration> arguments = classInfo.arguments;
+    final List<FormalParameterDeclaration> nullableArguments = arguments.nullableOnly;
+    final Identifier boolIdentifier = await builder.resolveIdentifier(dartCodePackage, 'bool');
+
     final DeclarationCode declaration = DeclarationCode.fromParts([
-      '  external ${classInfo.name} copyWith({',
-      for (int i = 0; i < classInfo.posArguments.length; i++)
+      '\n',
+      '  external ${classInfo.name} $copyWithLiteral({',
+      for (int i = 0; i < arguments.length; i++)
         ...i.spread(
-          classInfo.posArguments,
+          arguments,
           (int index, FormalParameterDeclaration value) => [
             value.notOmittedTypeCode(classInfo, builder).asNullable,
             ' ',
             value.identifier.name,
-            if (i < classInfo.posArguments.length - 1) ', ',
-          ],
-        ),
-      if (classInfo.posArguments.isNotEmpty && classInfo.namedArguments.isNotEmpty) ', ',
-      for (int i = 0; i < classInfo.namedArguments.length; i++)
-        ...i.spread(
-          classInfo.namedArguments,
-          (int index, FormalParameterDeclaration value) => [
-            value.notOmittedTypeCode(classInfo, builder).asNullable,
-            ' ',
-            value.identifier.name,
-            if (i < classInfo.namedArguments.length - 1) ', ',
+            if (i < arguments.length - 1) ', ',
           ],
         ),
       '});',
+      '\n',
+      '\n',
+      '  external ${classInfo.name} $copyWithNullLiteral(',
+      if (nullableArguments.isNotEmpty) ...[
+        '{',
+        for (int i = 0; i < nullableArguments.length; i++)
+          ...i.spread(
+            nullableArguments,
+            (int index, FormalParameterDeclaration value) => [
+              boolIdentifier,
+              ' ',
+              value.identifier.name,
+              ' = ',
+              'false',
+              if (i < nullableArguments.length - 1) ', ',
+            ],
+          ),
+        '});'
+      ],
+      if (nullableArguments.isEmpty) ');',
     ]);
     builder.declareInType(declaration);
   }
@@ -60,39 +78,46 @@ mixin CopyWithMacroDeclarationsMixin on ClassInfoMixin {
     required ClassInfo classInfo,
     required MemberDeclarationBuilder builder,
   }) async {
+    final List<FieldDeclaration> allFields = [...classInfo.fields, ...classInfo.superFields];
+    final List<FieldDeclaration> nullableFields = allFields.nullableOnly;
+    final Identifier boolIdentifier = await builder.resolveIdentifier(dartCodePackage, 'bool');
+
     final DeclarationCode declaration = DeclarationCode.fromParts([
-      '  external ${classInfo.name} copyWith({',
-      for (int i = 0; i < classInfo.fields.length; i++)
+      '\n',
+      '  external ${classInfo.name} $copyWithLiteral({',
+      for (int i = 0; i < allFields.length; i++)
         ...i.spread(
-          classInfo.fields,
+          allFields,
           (int index, FieldDeclaration value) => [
             value.notOmittedTypeCode(classInfo, builder).asNullable,
             ' ',
             value.identifier.name,
-            if (i < classInfo.fields.length - 1) ', ',
-          ],
-        ),
-      if (classInfo.fields.isNotEmpty && classInfo.superFields.isNotEmpty) ', ',
-      for (int i = 0; i < classInfo.superFields.length; i++)
-        ...i.spread(
-          classInfo.superFields,
-          (int index, FieldDeclaration value) => [
-            value.notOmittedTypeCode(classInfo, builder).asNullable,
-            ' ',
-            value.identifier.name,
-            if (i < classInfo.superFields.length - 1) ', ',
+            if (i < allFields.length - 1) ', ',
           ],
         ),
       '});',
+      '\n',
+      '\n',
+      '  external ${classInfo.name} $copyWithNullLiteral(',
+      if (nullableFields.isNotEmpty) ...[
+        '{',
+        for (int i = 0; i < nullableFields.length; i++)
+          ...i.spread(
+            nullableFields,
+            (int index, FieldDeclaration value) => [
+              boolIdentifier,
+              ' ',
+              value.identifier.name,
+              ' = ',
+              'false',
+              if (i < nullableFields.length - 1) ', ',
+            ],
+          ),
+        '});'
+      ],
+      if (nullableFields.isEmpty) ');',
     ]);
     builder.declareInType(declaration);
-  }
-
-  Future<void> buildDeclarationForAllAncestors({
-    required ClassInfo classInfo,
-    required MemberDeclarationBuilder builder,
-  }) async {
-    // TODO(alphamikle): Continue
   }
 
   Future<void> superConstructorAbsenceError({
@@ -108,9 +133,9 @@ mixin CopyWithMacroDeclarationsMixin on ClassInfoMixin {
     final ClassInfo superInfo = classInfo.superInfo!;
     final DeclarationOperation operation = switch (superInfo.structure) {
       ClassStructure.empty => buildEmptyDeclaration,
-      ClassStructure.hasConstructor => buildDeclarationForAllAncestors,
+      ClassStructure.hasConstructor => buildConstructorBasedDeclaration,
       ClassStructure.hasFields => superConstructorAbsenceError,
-      ClassStructure.hasFieldsAndConstructor => buildDeclarationForAllAncestors,
+      ClassStructure.hasFieldsAndConstructor => buildConstructorBasedDeclaration,
     };
 
     return operation;
