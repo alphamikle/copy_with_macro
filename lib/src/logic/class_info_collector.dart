@@ -24,10 +24,10 @@ class ClassInfoCollector {
   }
 
   Future<void> collect(DeclarationPhaseIntrospector builder) async {
-    _classInfo = await _collect(_clazz, builder);
+    _classInfo = await _collect(_clazz, builder, 0);
   }
 
-  Future<ClassInfo> _collect(ClassDeclaration clazz, DeclarationPhaseIntrospector builder) async {
+  Future<ClassInfo> _collect(ClassDeclaration clazz, DeclarationPhaseIntrospector builder, int level) async {
     final ClassInheritance inheritance;
     final ClassStructure structure;
     final ClassDeclaration? superClass = await builder.superOf(clazz);
@@ -47,13 +47,31 @@ class ClassInfoCollector {
       (false, false) => ClassStructure.hasFieldsAndConstructor,
     };
 
-    return ClassInfo(
+    final ClassInfo classInfo = ClassInfo(
       declaration: clazz,
       inheritance: inheritance,
       structure: structure,
       fields: fields,
       constructor: constructor,
-      superInfo: superClass == null ? null : await _collect(superClass, builder),
+      superInfo: superClass == null ? null : await _collect(superClass, builder, level + 1),
+      types: const {},
     );
+
+    if (level > 0) {
+      return classInfo;
+    }
+
+    final List<FieldDeclaration> allFields = classInfo.allFields;
+    final Map<String, TypeAnnotationCode> types = {};
+
+    for (final field in allFields) {
+      types[field.identifier.name] = field.type.code;
+    }
+
+    assert(allFields.length == types.length);
+
+    (builder as Builder).logInfo('Name: ${clazz.identifier.name}; Constructor: "${constructor?.identifier.name}"; CArguments: ${classInfo.posArguments}');
+
+    return classInfo.copyWith(types: types);
   }
 }

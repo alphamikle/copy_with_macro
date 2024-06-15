@@ -10,7 +10,7 @@ import 'class_type.dart';
 import 'messages.dart';
 import 'types.dart';
 
-class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacro {
+macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacro {
   const WithConstructor({
     this.name = '',
     this.allRequired = true,
@@ -20,13 +20,6 @@ class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacro {
   final String name;
 
   final bool allRequired;
-
-  String get cName {
-    if (name == '') {
-      return '';
-    }
-    return '.$name';
-  }
 
   @override
   FutureOr<void> buildDeclarationsForClass(ClassDeclaration clazz, MemberDeclarationBuilder builder) async {
@@ -107,8 +100,8 @@ class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacro {
   }) async {
     assert(classInfo.superInfo?.constructor != null);
 
-    final List<FormalParameterDeclaration> superPositionalParameters = classInfo.superInfo!.constructor!.positionalParameters.toList();
-    final List<FormalParameterDeclaration> superNamedParameters = classInfo.superInfo!.constructor!.namedParameters.toList();
+    final List<FormalParameterDeclaration> superPositionalParameters = classInfo.superPosArguments;
+    final List<FormalParameterDeclaration> superNamedParameters = classInfo.superNamedArguments;
     final bool superHasParams = superPositionalParameters.isNotEmpty || superNamedParameters.isNotEmpty;
 
     if (superHasParams == false) {

@@ -6,6 +6,13 @@ import 'class_info_collector.dart';
 mixin ClassInfoMixin {
   String get name;
 
+  String get cName {
+    if (name == '') {
+      return '';
+    }
+    return '.$name';
+  }
+
   Future<ClassInfo> collectClassInfo({
     required ClassDeclaration clazz,
     required DeclarationPhaseIntrospector builder,
