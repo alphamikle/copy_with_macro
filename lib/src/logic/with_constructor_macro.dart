@@ -10,7 +10,20 @@ import 'class_type.dart';
 import 'messages.dart';
 import 'types.dart';
 
-macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacro {
+Future<List<Object>> _noMethodFoundFix(TypePhaseIntrospector builder) async {
+  final Identifier strId = await builder.resolveIdentifier(dartCodePackage, 'String');
+
+  return [
+    '\n',
+    '  external ',
+    strId,
+    ' get doNotCallMe;',
+  ];
+}
+
+macro
+
+class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacro {
   const WithConstructor({
     this.name = '',
     this.allRequired = true,
@@ -29,13 +42,13 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
     final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
 
     final DeclarationOperation operation = switch ((classInfo.inheritance, classInfo.structure)) {
-      /// ? Simple class
+    /// ? Simple class
       (ClassInheritance.firstborn, ClassStructure.empty) => _buildEmptyDeclaration,
       (ClassInheritance.firstborn, ClassStructure.hasConstructor) => _constructorExistenceError,
       (ClassInheritance.firstborn, ClassStructure.hasFields) => _buildFieldsOnlyDeclaration,
       (ClassInheritance.firstborn, ClassStructure.hasFieldsAndConstructor) => _constructorExistenceError,
 
-      /// ? Class, which extends from another class
+    /// ? Class, which extends from another class
       (ClassInheritance.successor, ClassStructure.empty) => _selectSuccessorDeclarationOperation(classInfo),
       (ClassInheritance.successor, ClassStructure.hasConstructor) => _constructorExistenceError,
       (ClassInheritance.successor, ClassStructure.hasFields) => _selectSuccessorDeclarationOperation(classInfo),
@@ -65,6 +78,7 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
   }) async {
     final DeclarationCode declaration = DeclarationCode.fromParts([
       '  const ${classInfo.name}$cName();',
+      ...await _noMethodFoundFix(builder),
     ]);
     builder.declareInType(declaration);
   }
@@ -83,7 +97,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
       for (int i = 0; i < classInfo.fields.length; i++)
         ...i.spread(
           classInfo.fields,
-          (int index, FieldDeclaration value) => [
+              (int index, FieldDeclaration value) =>
+          [
             if (allRequired || value.type.isNonNullable) 'required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',
@@ -92,7 +107,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
             if (i < classInfo.fields.length - 1) ', '
           ],
         ),
-      '});'
+      '});',
+      ...await _noMethodFoundFix(builder),
     ]);
     builder.declareInType(declaration);
   }
@@ -119,7 +135,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
       for (int i = 0; i < classInfo.fields.length; i++)
         ...i.spread(
           classInfo.fields,
-          (int index, FieldDeclaration value) => [
+              (int index, FieldDeclaration value) =>
+          [
             if (allRequired || value.type.isNonNullable) 'required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',
@@ -133,7 +150,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
       for (int i = 0; i < superPositionalParameters.length; i++)
         ...i.spread(
           superPositionalParameters,
-          (int index, FormalParameterDeclaration value) => [
+              (int index, FormalParameterDeclaration value) =>
+          [
             if (allRequired || value.type.isNonNullable) 'required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',
@@ -144,7 +162,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
       for (int i = 0; i < superNamedParameters.length; i++)
         ...i.spread(
           superNamedParameters,
-          (int index, FormalParameterDeclaration value) => [
+              (int index, FormalParameterDeclaration value) =>
+          [
             if (allRequired || value.type.isNonNullable) 'required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',
@@ -158,7 +177,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
       for (int i = 0; i < superPositionalParameters.length; i++)
         ...i.spread(
           superPositionalParameters,
-          (int index, FormalParameterDeclaration value) => [
+              (int index, FormalParameterDeclaration value) =>
+          [
             value.identifier.name,
             if (superNamedParameters.isEmpty && i < superPositionalParameters.length - 1 || superNamedParameters.isNotEmpty) ', ',
           ],
@@ -166,14 +186,16 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
       for (int i = 0; i < superNamedParameters.length; i++)
         ...i.spread(
           superNamedParameters,
-          (int index, FormalParameterDeclaration value) => [
+              (int index, FormalParameterDeclaration value) =>
+          [
             value.identifier.name,
             ': ',
             value.identifier.name,
             if (i < superNamedParameters.length - 1) ', ',
           ],
         ),
-      ');'
+      ');',
+      ...await _noMethodFoundFix(builder),
     ]);
     builder.declareInType(declaration);
   }

@@ -1,0 +1,3 @@
+[submodule "lib/src/modules/quiver"]
+	path = lib/src/modules/quiver
+	url = git@github.com:google/quiver-dart.git

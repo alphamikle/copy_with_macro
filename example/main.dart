@@ -12,6 +12,7 @@ void main() {
       historicalNovel,
     ],
   );
+
   final Book hitchhiker = warAndPeace.copyWith(
     title: 'The Hitchhiker\'s Guide to the Galaxy',
     year: 1979,
@@ -19,8 +20,12 @@ void main() {
       historicalNovel.copyWith(name: 'Science Fiction').copyWithNull(tonality: true),
     ],
   ).copyWithNull();
+
+  final List<Object?> fields = warAndPeace.$fields;
+  print(fields);
 }
 
+@Equal()
 @CopyWith()
 @WithConstructor()
 class Book {

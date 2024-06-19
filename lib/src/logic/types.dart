@@ -14,6 +14,11 @@ typedef DefinitionOperation = Future<void> Function({
 });
 
 final Uri dartCodePackage = Uri.parse('dart:core');
+final Uri quiverHashLibrary = Uri.parse('package:copy_with_macro/src/modules/quiver/lib/src/core/hash.dart');
 
 const String copyWithLiteral = 'copyWith';
 const String copyWithNullLiteral = 'copyWithNull';
+
+const String equalLiteral = '==';
+const String objectFieldsLiteral = r'$fields';
+const String hashCodeLiteral = 'hashCode';
