@@ -14,12 +14,15 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
   const WithConstructor({
     this.name = '',
     this.allRequired = true,
+    this.explicitTypes = false,
   });
 
   @override
   final String name;
 
   final bool allRequired;
+
+  final bool explicitTypes;
 
   @override
   FutureOr<void> buildDeclarationsForClass(ClassDeclaration clazz, MemberDeclarationBuilder builder) async {
@@ -82,8 +85,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
           classInfo.fields,
           (int index, FieldDeclaration value) => [
             if (allRequired || value.type.isNonNullable) 'required ',
-            value.type.code,
-            ' ',
+            if (explicitTypes) value.type.code,
+            if (explicitTypes) ' ',
             'this.',
             value.identifier.name,
             if (i < classInfo.fields.length - 1) ', '
@@ -118,8 +121,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
           classInfo.fields,
           (int index, FieldDeclaration value) => [
             if (allRequired || value.type.isNonNullable) 'required ',
-            value.type.code,
-            ' ',
+            if (explicitTypes) value.type.code,
+            if (explicitTypes) ' ',
             'this.',
             value.identifier.name,
             ', ',
@@ -132,8 +135,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
           superPositionalParameters,
           (int index, FormalParameterDeclaration value) => [
             if (allRequired || value.type.isNonNullable) 'required ',
-            value.type.code,
-            ' ',
+            if (explicitTypes) value.type.code,
+            if (explicitTypes) ' ',
             value.identifier.name,
             if (superNamedParameters.isEmpty && i < superPositionalParameters.length - 1 || superNamedParameters.isNotEmpty) ', ',
           ],
@@ -143,8 +146,8 @@ macro class WithConstructor with ClassInfoMixin implements ClassDeclarationsMacr
           superNamedParameters,
           (int index, FormalParameterDeclaration value) => [
             if (allRequired || value.type.isNonNullable) 'required ',
-            value.type.code,
-            ' ',
+            if (explicitTypes) value.type.code,
+            if (explicitTypes) ' ',
             value.identifier.name,
             if (i < superNamedParameters.length - 1) ', ',
           ],

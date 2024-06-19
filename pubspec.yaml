@@ -1,5 +1,5 @@
 name: copy_with_macro
-description: "A @CopyWith() macros with @DeepCopy() macros as well, built on top of Metaprogramming feature of Dart"
+description: "A @CopyWith() macros, built on top of Metaprogramming feature of Dart to copy classes with nullable values"
 version: 0.0.1
 homepage:
 
@@ -9,7 +9,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  macros: ^0.1.0-main.5
+  macros: ^0.1.2-main.3
+  data_class: ^0.0.2
+  json: ^0.20.2
+# For experiments
+#  macros: ^0.1.2-main.3
+#  data_class: ^0.0.2
 
 dev_dependencies:
   flutter_test:

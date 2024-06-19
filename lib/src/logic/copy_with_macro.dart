@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:macros/macros.dart';
 
 import '../logic_old/common_extensions.dart';
-import '../logic_old/macro_extensions.dart';
 import 'class_info.dart';
 import 'class_info_mixin.dart';
 import 'class_type.dart';
@@ -11,8 +10,13 @@ import 'copy_with_macro_declarations_mixin.dart';
 import 'copy_with_macro_definition_macro_mixin.dart';
 import 'types.dart';
 
-macro class CopyWith with ClassInfoMixin, CopyWithMacroDeclarationsMixin, CopyWithMacroDefinitionMacroMixin implements ClassDeclarationsMacro,
-    ClassDefinitionMacro {
+macro
+
+class CopyWith
+    with ClassInfoMixin, CopyWithMacroDeclarationsMixin, CopyWithMacroDefinitionMacroMixin
+    implements
+        ClassDeclarationsMacro,
+        ClassDefinitionMacro {
   const CopyWith({
     this.name = '',
   });
@@ -25,13 +29,13 @@ macro class CopyWith with ClassInfoMixin, CopyWithMacroDeclarationsMixin, CopyWi
     final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
 
     final DeclarationOperation operation = switch ((classInfo.inheritance, classInfo.structure)) {
-      /// ? Simple class
+    /// ? Simple class
       (ClassInheritance.firstborn, ClassStructure.empty) => buildEmptyDeclaration,
       (ClassInheritance.firstborn, ClassStructure.hasConstructor) => buildConstructorBasedDeclaration,
       (ClassInheritance.firstborn, ClassStructure.hasFields) => buildFieldBasedDeclaration,
       (ClassInheritance.firstborn, ClassStructure.hasFieldsAndConstructor) => buildConstructorBasedDeclaration,
 
-      /// ? Class, that extends from another class
+    /// ? Class, that extends from another class
       (ClassInheritance.successor, ClassStructure.empty) => selectSuccessorDeclarationOperation(classInfo),
       (ClassInheritance.successor, ClassStructure.hasConstructor) => buildConstructorBasedDeclaration,
       (ClassInheritance.successor, ClassStructure.hasFields) => selectSuccessorDeclarationOperation(classInfo),
@@ -88,20 +92,20 @@ macro class CopyWith with ClassInfoMixin, CopyWithMacroDeclarationsMixin, CopyWi
 
     final FunctionDefinitionBuilder copyWithNullMethod = await builder.buildMethod(copyWithNullDeclaration.identifier);
 
-    // final DefinitionOperation operation = switch ((classInfo.inheritance, classInfo.structure)) {
-    // /// ? Simple class
-    //   (ClassInheritance.firstborn, ClassStructure.empty) => buildEmptyDefinition,
-    //   (ClassInheritance.firstborn, ClassStructure.hasConstructor) => buildConstructorBasedDefinition,
-    //   (ClassInheritance.firstborn, ClassStructure.hasFields) => buildFieldBasedDefinition,
-    //   (ClassInheritance.firstborn, ClassStructure.hasFieldsAndConstructor) => buildConstructorBasedDefinition,
-    //
-    // /// ? Class, that extends from another class
-    //   (ClassInheritance.successor, ClassStructure.empty) => selectSuccessorDefinitionOperation(classInfo),
-    //   (ClassInheritance.successor, ClassStructure.hasConstructor) => buildConstructorBasedDefinition,
-    //   (ClassInheritance.successor, ClassStructure.hasFields) => selectSuccessorDefinitionOperation(classInfo),
-    //   (ClassInheritance.successor, ClassStructure.hasFieldsAndConstructor) => buildConstructorBasedDefinition,
-    // };
-    //
-    // await operation(classInfo: classInfo, builder: builder, method: copyWithNullMethod);
+    final DefinitionOperation operation = switch ((classInfo.inheritance, classInfo.structure)) {
+    /// ? Simple class
+      (ClassInheritance.firstborn, ClassStructure.empty) => buildEmptyNullDefinition,
+      (ClassInheritance.firstborn, ClassStructure.hasConstructor) => buildConstructorBasedNullDefinition,
+      (ClassInheritance.firstborn, ClassStructure.hasFields) => buildFieldBasedNullDefinition,
+      (ClassInheritance.firstborn, ClassStructure.hasFieldsAndConstructor) => buildConstructorBasedNullDefinition,
+
+    /// ? Class, that extends from another class
+      (ClassInheritance.successor, ClassStructure.empty) => selectSuccessorNullDefinitionOperation(classInfo),
+      (ClassInheritance.successor, ClassStructure.hasConstructor) => buildConstructorBasedNullDefinition,
+      (ClassInheritance.successor, ClassStructure.hasFields) => selectSuccessorNullDefinitionOperation(classInfo),
+      (ClassInheritance.successor, ClassStructure.hasFieldsAndConstructor) => buildConstructorBasedNullDefinition,
+    };
+
+    await operation(classInfo: classInfo, builder: builder, method: copyWithNullMethod);
   }
 }

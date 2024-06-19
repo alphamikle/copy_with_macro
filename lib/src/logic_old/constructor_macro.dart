@@ -19,7 +19,9 @@ String _trailingName(String cName) {
   return 'a constructor with name "$cName"';
 }
 
-macro class ConstructorMacro implements ClassDeclarationsMacro {
+macro
+
+class ConstructorMacro implements ClassDeclarationsMacro {
   const ConstructorMacro({
     this.name = '',
   });
@@ -58,8 +60,16 @@ macro class ConstructorMacro implements ClassDeclarationsMacro {
 
     final String constructorName = name == '' ? '' : '.$name';
 
+    final Identifier str = await builder.resolveIdentifier(Uri.parse('dart:core'), 'String');
+
     if (fields.isEmpty && superArguments.isEmpty) {
-      return builder.declareInType(DeclarationCode.fromString('const ${cla2s.identifier.name}$constructorName();'));
+      return builder.declareInType(DeclarationCode.fromParts(
+        [
+          'const ${cla2s.identifier.name}$constructorName();',
+          '\n',
+          'external ${str.name} get never;',
+        ],
+      ));
     }
 
     final List<FieldInfo> allSuperArguments = superArguments.all;
@@ -67,20 +77,26 @@ macro class ConstructorMacro implements ClassDeclarationsMacro {
     final DeclarationCode declaration = DeclarationCode.fromParts([
       '  const ${cla2s.identifier.name}$constructorName({',
       for (int i = 0; i < allSuperArguments.length; i++)
-        ...i.spread(allSuperArguments, (int index, FieldInfo argument) => [
-          'required ',
-          argument.type!.code,
-          ' ',
-          argument.name,
-          ', ',
-        ]),
+        ...i.spread(
+            allSuperArguments,
+                (int index, FieldInfo argument) =>
+            [
+              'required ',
+              argument.type!.code,
+              ' ',
+              argument.name,
+              ', ',
+            ]),
       for (int i = 0; i < fields.length; i++)
-        ...i.spread(fields, (int index, FieldDeclaration field) => [
-          'required ',
-          'this.',
-          field.identifier.name,
-          if (i < fields.length - 1) ', ',
-        ]),
+        ...i.spread(
+            fields,
+                (int index, FieldDeclaration field) =>
+            [
+              'required ',
+              'this.',
+              field.identifier.name,
+              if (i < fields.length - 1) ', ',
+            ]),
       '})',
       if (superClass != null) ...[
         ' : super(',
