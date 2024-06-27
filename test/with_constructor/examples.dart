@@ -1,6 +1,5 @@
-import 'package:copy_with_macro/src/logic/copy_with_macro.dart';
-import 'package:copy_with_macro/src/logic/with_constructor_macro.dart';
-import 'package:data_class/data_class.dart';
+import 'package:copy_with_macro/src/domain/copy_with/logic/macro/copy_with_macro.dart';
+import 'package:copy_with_macro/src/domain/with_constructor/logic/macro/with_constructor_macro.dart';
 import 'package:json/json.dart';
 
 @CopyWith()
