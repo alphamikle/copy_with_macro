@@ -10,6 +10,7 @@ import '../../../../service/type/types.dart';
 import '../../../class_info/logic/mixin/class_info_mixin.dart';
 import '../../../class_info/logic/model/class_info.dart';
 import '../../../class_info/logic/model/class_type.dart';
+import '../../../class_info/logic/model/super_field_declaration.dart';
 
 mixin WithConstructorDeclarationMixin on ClassInfoMixin {
   bool get allRequired;
@@ -20,22 +21,22 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
 
   FutureOr<void> buildDeclaration(ClassDeclaration clazz, MemberDeclarationBuilder builder) async {
     final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
-
-    final DeclarationOperation operation = switch ((classInfo.inheritance, classInfo.structure)) {
-      /// ? Simple class
-      (ClassInheritance.firstborn, ClassStructure.empty) => buildEmptyDeclaration,
-      (ClassInheritance.firstborn, ClassStructure.hasConstructor) => constructorExistenceError,
-      (ClassInheritance.firstborn, ClassStructure.hasFields) => buildFieldsOnlyDeclaration,
-      (ClassInheritance.firstborn, ClassStructure.hasFieldsAndConstructor) => constructorExistenceError,
-
-      /// ? Class, which extends from another class
-      (ClassInheritance.successor, ClassStructure.empty) => selectSuccessorDeclarationOperation(classInfo),
-      (ClassInheritance.successor, ClassStructure.hasConstructor) => constructorExistenceError,
-      (ClassInheritance.successor, ClassStructure.hasFields) => selectSuccessorDeclarationOperation(classInfo),
-      (ClassInheritance.successor, ClassStructure.hasFieldsAndConstructor) => constructorExistenceError,
-    };
-
-    await operation(classInfo: classInfo, builder: builder);
+    //
+    // final DeclarationOperation operation = switch ((classInfo.inheritance, classInfo.structure)) {
+    //   /// ? Simple class
+    //   (ClassInheritance.firstborn, ClassStructure.empty) => buildEmptyDeclaration,
+    //   (ClassInheritance.firstborn, ClassStructure.hasConstructor) => constructorExistenceError,
+    //   (ClassInheritance.firstborn, ClassStructure.hasFields) => buildFieldsOnlyDeclaration,
+    //   (ClassInheritance.firstborn, ClassStructure.hasFieldsAndConstructor) => constructorExistenceError,
+    //
+    //   /// ? Class, which extends from another class
+    //   (ClassInheritance.successor, ClassStructure.empty) => selectSuccessorDeclarationOperation(classInfo),
+    //   (ClassInheritance.successor, ClassStructure.hasConstructor) => constructorExistenceError,
+    //   (ClassInheritance.successor, ClassStructure.hasFields) => selectSuccessorDeclarationOperation(classInfo),
+    //   (ClassInheritance.successor, ClassStructure.hasFieldsAndConstructor) => constructorExistenceError,
+    // };
+    //
+    // await operation(classInfo: classInfo, builder: builder);
   }
 
   Future<List<Object>> noMethodFoundFix(TypePhaseIntrospector builder) async {
@@ -87,12 +88,14 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
       return;
     }
 
+    final List<SuperFieldDeclaration> fields = classInfo.fields;
+
     final DeclarationCode declaration = DeclarationCode.fromParts([
       '  const ${classInfo.name}$cName({',
-      for (int i = 0; i < classInfo.fields.length; i++)
+      for (int i = 0; i < fields.length; i++)
         ...i.spread(
-          classInfo.fields,
-          (int index, FieldDeclaration value) => [
+          fields,
+          (int index, SuperFieldDeclaration value) => [
             if (allRequired || value.type.isNonNullable) 'required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',
@@ -122,14 +125,16 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
       return;
     }
 
+    final List<SuperFieldDeclaration> fields = classInfo.fields;
+
     final DeclarationCode declaration = DeclarationCode.fromParts([
       '  const ${classInfo.name}$cName({',
 
       /// ? Arguments of class itself
-      for (int i = 0; i < classInfo.fields.length; i++)
+      for (int i = 0; i < fields.length; i++)
         ...i.spread(
-          classInfo.fields,
-          (int index, FieldDeclaration value) => [
+          fields,
+          (int index, SuperFieldDeclaration value) => [
             if (allRequired || value.type.isNonNullable) 'required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',

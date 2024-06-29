@@ -60,10 +60,10 @@ typedef Json = Map<String, dynamic>;
 @SerializableToJson()
 class Second {
   final String field2;
-  final Tonality? field3;
-  final Map<String, dynamic>? field4;
-  final Set<Map<String, dynamic>> field5;
-  final Zero field6;
+// final Tonality? field3;
+// final Map<String, dynamic>? field4;
+// final Set<Map<String, dynamic>> field5;
+// final Zero field6;
 }
 
 void main() {

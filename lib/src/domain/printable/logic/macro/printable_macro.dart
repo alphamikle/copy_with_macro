@@ -9,6 +9,7 @@ import '../../../../service/extension/type_definition_builder_extension.dart';
 import '../../../../service/type/types.dart';
 import '../../../class_info/logic/mixin/class_info_mixin.dart';
 import '../../../class_info/logic/model/class_info.dart';
+import '../../../class_info/logic/model/super_field_declaration.dart';
 
 macro
 
@@ -41,13 +42,13 @@ class Printable with ClassInfoMixin implements ClassDeclarationsMacro, ClassDefi
     if (method == null) {
       return;
     }
-    final List<FieldDeclaration> allFields = classInfo.allFields;
+    final List<SuperFieldDeclaration> allFields = classInfo.allFields;
     final FunctionBodyCode code = FunctionBodyCode.fromParts([
       ' => \'${classInfo.name}(',
       for (int i = 0; i < allFields.length; i++)
         ...i.spread(
           allFields,
-              (int index, FieldDeclaration value) =>
+              (int index, SuperFieldDeclaration value) =>
           [
             value.identifier.name,
             if (value.type.isNullable) '?',

@@ -1,6 +1,7 @@
 import 'package:macros/macros.dart';
 
 import '../../domain/class_info/logic/model/class_info.dart';
+import '../../domain/class_info/logic/model/super_field_declaration.dart';
 import 'macro_extensions.dart';
 
 extension ExtendedFieldDeclaration on FieldDeclaration {
@@ -16,10 +17,10 @@ extension ExtendedFieldDeclaration on FieldDeclaration {
   }
 }
 
-extension ExtendedFieldDeclarationList on List<FieldDeclaration> {
-  List<FieldDeclaration> nullableOnly(ClassInfo classInfo, Builder builder) {
-    return where((FieldDeclaration it) {
-      final TypeAnnotationCode notOmittedType = it.notOmittedTypeCode(classInfo, builder);
+extension ExtendedFieldDeclarationList on List<SuperFieldDeclaration> {
+  List<SuperFieldDeclaration> nullableOnly(ClassInfo classInfo, Builder builder) {
+    return where((SuperFieldDeclaration it) {
+      final TypeAnnotationCode notOmittedType = it.original.notOmittedTypeCode(classInfo, builder);
       return notOmittedType.isNullable;
     }).toList();
   }

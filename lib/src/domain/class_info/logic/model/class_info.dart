@@ -1,6 +1,7 @@
 import 'package:macros/macros.dart';
 
 import 'class_type.dart';
+import 'super_field_declaration.dart';
 
 class ClassInfo {
   const ClassInfo({
@@ -16,7 +17,7 @@ class ClassInfo {
   final ClassDeclaration declaration;
   final ClassInheritance inheritance;
   final ClassStructure structure;
-  final List<FieldDeclaration> fields;
+  final List<SuperFieldDeclaration> fields;
   final Map<String, TypeAnnotationCode> types;
   final ConstructorDeclaration? constructor;
   final ClassInfo? superInfo;
@@ -31,10 +32,10 @@ class ClassInfo {
 
   bool get hasArguments => hasConstructor && (posArguments.isNotEmpty || namedArguments.isNotEmpty);
 
-  List<FieldDeclaration> get superFields => superInfo?.fields ?? <FieldDeclaration>[];
+  List<SuperFieldDeclaration> get superFields => superInfo?.fields ?? <SuperFieldDeclaration>[];
 
-  List<FieldDeclaration> get allFields {
-    final Set<FieldDeclaration> fields = {};
+  List<SuperFieldDeclaration> get allFields {
+    final Set<SuperFieldDeclaration> fields = {};
     fields.addAll(this.fields);
     if (superInfo != null) {
       fields.addAll(superInfo!.fields);
@@ -58,7 +59,7 @@ class ClassInfo {
     ClassDeclaration? declaration,
     ClassInheritance? inheritance,
     ClassStructure? structure,
-    List<FieldDeclaration>? fields,
+    List<SuperFieldDeclaration>? fields,
     Map<String, TypeAnnotationCode>? types,
     ConstructorDeclaration? constructor,
     ClassInfo? superInfo,

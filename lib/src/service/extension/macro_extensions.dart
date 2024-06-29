@@ -31,6 +31,8 @@ extension ExtendedTypePhaseIntrospector on TypePhaseIntrospector {
     // ignore: deprecated_member_use
     return resolveIdentifier(Uri.parse(token.$1), token.$2);
   }
+
+  Future<List<Identifier>> resolveIds(List<IdToken> tokens) async => Future.wait(tokens.map(resolveId));
 }
 
 extension ExtendedMacroBuilder on Builder {

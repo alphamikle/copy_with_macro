@@ -7,6 +7,7 @@ import '../../../../service/extension/type_definition_builder_extension.dart';
 import '../../../../service/type/types.dart';
 import '../../../class_info/logic/mixin/class_info_mixin.dart';
 import '../../../class_info/logic/model/class_info.dart';
+import '../../../class_info/logic/model/super_field_declaration.dart';
 
 mixin EqualMacroDefinitionMixin on ClassInfoMixin {
   Future<void> defineOperator(ClassDeclaration clazz, TypeDefinitionBuilder builder) async {
@@ -17,7 +18,7 @@ mixin EqualMacroDefinitionMixin on ClassInfoMixin {
 
     final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
     final Identifier identicalId = await builder.resolveId($identical);
-    final List<FieldDeclaration> allFields = classInfo.allFields;
+    final List<SuperFieldDeclaration> allFields = classInfo.allFields;
 
     final FunctionBodyCode code = FunctionBodyCode.fromParts([
       '{\n',
@@ -34,7 +35,7 @@ mixin EqualMacroDefinitionMixin on ClassInfoMixin {
         for (int i = 0; i < allFields.length; i++)
           ...i.spread(
             allFields,
-            (int index, FieldDeclaration value) => [
+            (int index, SuperFieldDeclaration value) => [
               value.identifier.name,
               ' == ',
               'other.${value.identifier.name}',
@@ -58,7 +59,7 @@ mixin EqualMacroDefinitionMixin on ClassInfoMixin {
     }
 
     final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
-    final List<FieldDeclaration> allFields = classInfo.allFields;
+    final List<SuperFieldDeclaration> allFields = classInfo.allFields;
 
     final FunctionBodyCode code = FunctionBodyCode.fromParts([
       ' => ',
@@ -66,7 +67,7 @@ mixin EqualMacroDefinitionMixin on ClassInfoMixin {
       for (int i = 0; i < allFields.length; i++)
         ...i.spread(
           allFields,
-          (int index, FieldDeclaration value) => [
+          (int index, SuperFieldDeclaration value) => [
             value.identifier,
             if (i < allFields.length - 1) ', ',
           ],

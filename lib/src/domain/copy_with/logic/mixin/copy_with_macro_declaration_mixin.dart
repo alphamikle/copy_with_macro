@@ -9,6 +9,7 @@ import '../../../../service/type/types.dart';
 import '../../../class_info/logic/mixin/class_info_mixin.dart';
 import '../../../class_info/logic/model/class_info.dart';
 import '../../../class_info/logic/model/class_type.dart';
+import '../../../class_info/logic/model/super_field_declaration.dart';
 
 mixin CopyWithMacroDeclarationMixin on ClassInfoMixin {
   Future<void> buildEmptyDeclaration({
@@ -72,8 +73,8 @@ mixin CopyWithMacroDeclarationMixin on ClassInfoMixin {
     required ClassInfo classInfo,
     required MemberDeclarationBuilder builder,
   }) async {
-    final List<FieldDeclaration> allFields = [...classInfo.fields, ...classInfo.superFields];
-    final List<FieldDeclaration> nullableFields = allFields.nullableOnly(classInfo, builder);
+    final List<SuperFieldDeclaration> allFields = [...classInfo.fields, ...classInfo.superFields];
+    final List<SuperFieldDeclaration> nullableFields = allFields.nullableOnly(classInfo, builder);
     final Identifier boolId = await builder.resolveId($bool);
 
     final DeclarationCode declaration = DeclarationCode.fromParts([
@@ -81,8 +82,8 @@ mixin CopyWithMacroDeclarationMixin on ClassInfoMixin {
       for (int i = 0; i < allFields.length; i++)
         ...i.spread(
           allFields,
-          (int index, FieldDeclaration value) => [
-            value.notOmittedTypeCode(classInfo, builder).asNullable,
+          (int index, SuperFieldDeclaration value) => [
+            value.original.notOmittedTypeCode(classInfo, builder).asNullable,
             ' ',
             value.identifier.name,
             if (i < allFields.length - 1) ', ',
@@ -95,7 +96,7 @@ mixin CopyWithMacroDeclarationMixin on ClassInfoMixin {
         for (int i = 0; i < nullableFields.length; i++)
           ...i.spread(
             nullableFields,
-            (int index, FieldDeclaration value) => [
+            (int index, SuperFieldDeclaration value) => [
               boolId,
               '?',
               ' ',

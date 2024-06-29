@@ -26,7 +26,8 @@ class SerializableToJson
   const SerializableToJson({
     this.namingStrategy = 'plain',
     this.ignorePrivate = false,
-  });
+    String fromJsonConstructorName = '\$$fromJsonLiteral',
+  }) : name = fromJsonConstructorName;
 
   @override
   final String namingStrategy;
@@ -35,7 +36,7 @@ class SerializableToJson
   final bool ignorePrivate;
 
   @override
-  String get name => '\$$fromJsonLiteral';
+  final String name;
 
   @override
   bool get allRequired => true;

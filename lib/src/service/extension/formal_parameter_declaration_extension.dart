@@ -1,8 +1,8 @@
 import 'package:macros/macros.dart';
 
 import '../../domain/class_info/logic/model/class_info.dart';
+import 'identifier_extension.dart';
 import 'macro_extensions.dart';
-import 'named_type_annotation_extension.dart';
 
 extension ExtendedFormalParameterDeclaration on FormalParameterDeclaration {
   TypeAnnotationCode notOmittedTypeCode(ClassInfo classInfo, Builder builder) {
@@ -31,9 +31,9 @@ extension ExtendedFormalParameterDeclarationList on List<FormalParameterDeclarat
       final declaration = this[i];
 
       if (declaration.type is NamedTypeAnnotation) {
-        final TypeDeclaration? realDeclaration = await (declaration.type as NamedTypeAnnotation).realDeclarationOf(builder);
-        if (realDeclaration is EnumDeclaration) {
-          enums.add(realDeclaration);
+        final TypeDeclaration? realType = await declaration.identifier.realType(builder);
+        if (realType is EnumDeclaration) {
+          enums.add(realType);
         }
       }
     }

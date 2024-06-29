@@ -1,8 +1,10 @@
 import 'package:macros/macros.dart';
 
 import '../../../../service/extension/macro_extensions.dart';
+import '../mapper/super_field_declaration_mapper.dart';
 import '../model/class_info.dart';
 import '../model/class_type.dart';
+import '../model/super_field_declaration.dart';
 
 class ClassInfoCollector {
   ClassInfoCollector({
@@ -30,15 +32,19 @@ class ClassInfoCollector {
   Future<ClassInfo> _collect(ClassDeclaration clazz, DeclarationPhaseIntrospector builder, int level) async {
     final ClassInheritance inheritance;
     final ClassStructure structure;
-    final ClassDeclaration? superClass = await builder.superOf(clazz);
+    final (ClassDeclaration? superClass, ConstructorDeclaration? constructor, List<FieldDeclaration> fields) = await (
+      builder.superOf(clazz),
+      builder.constructorOf(clazz, name: _constructorName),
+      builder.fieldsOf(clazz),
+    ).wait;
+
+    final List<SuperFieldDeclaration> superFields = await superizeFieldDeclarations(builder, fields);
+
     if (superClass == null) {
       inheritance = ClassInheritance.firstborn;
     } else {
       inheritance = ClassInheritance.successor;
     }
-
-    final ConstructorDeclaration? constructor = await builder.constructorOf(clazz, name: _constructorName);
-    final List<FieldDeclaration> fields = await builder.fieldsOf(clazz);
 
     structure = switch ((constructor == null, fields.isEmpty)) {
       (true, true) => ClassStructure.empty,
@@ -51,7 +57,7 @@ class ClassInfoCollector {
       declaration: clazz,
       inheritance: inheritance,
       structure: structure,
-      fields: fields,
+      fields: superFields,
       constructor: constructor,
       superInfo: superClass == null ? null : await _collect(superClass, builder, level + 1),
       types: const {},
@@ -61,11 +67,11 @@ class ClassInfoCollector {
       return classInfo;
     }
 
-    final List<FieldDeclaration> allFields = classInfo.allFields;
+    final List<SuperFieldDeclaration> allFields = classInfo.allFields;
     final Map<String, TypeAnnotationCode> types = {};
 
     for (final field in allFields) {
-      types[field.identifier.name] = field.type.code;
+      types[field.original.identifier.name] = field.original.type.code;
     }
 
     assert(allFields.length == types.length);
