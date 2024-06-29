@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:macros/macros.dart';
 
 import '../../../../service/extension/common_extensions.dart';
+import '../../../../service/extension/identifiers.dart';
 import '../../../../service/extension/macro_extensions.dart';
 import '../../../../service/log/messages.dart';
 import '../../../../service/type/types.dart';
@@ -42,12 +43,12 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
       return [];
     }
 
-    final Identifier strId = await builder.resolveIdentifier(dartCorePackage, 'String');
+    final Identifier stringId = await builder.resolveId($string);
 
     return [
       '\n',
       '  external ',
-      strId,
+      stringId,
       ' get doNotCallMe;',
     ];
   }
@@ -161,7 +162,7 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
             if (i < superNamedParameters.length - 1) ', ',
           ],
         ),
-      '}) : super(',
+      '}) : super$cName(',
 
       /// ? Super constructor arguments
       for (int i = 0; i < superPositionalParameters.length; i++)

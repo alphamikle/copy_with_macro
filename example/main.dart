@@ -48,31 +48,47 @@ enum Tonality {
   thriller,
 }
 
-@SerializableToJson()
-class First {
-  final String field1;
-}
+class Zero {}
+
+typedef Json = Map<String, dynamic>;
+
+// @SerializableToJson()
+// class First {
+//   final String field1;
+// }
 
 @SerializableToJson()
-class Second extends First {
+class Second {
   final String field2;
   final Tonality? field3;
+  final Map<String, dynamic>? field4;
+  final Set<Map<String, dynamic>> field5;
+  final Zero field6;
 }
 
 void main() {
+  // ignore: unused_local_variable
   final Second second = Second.fromJson(
     {
-      'field_1': 'Boo',
-      'field_2': 'Foo',
-      'field_3': 'comedy',
+      'field1': 'Boo',
+      'field2': 'Foo',
+      'field3': 'comedy',
     },
   );
 }
 
+String convert(String key) => key;
+
 Second example(Map<String, dynamic> json) {
+  final Map<String, Tonality> stringToTonality = Tonality.values.asNameMap().map((String key, Tonality value) => MapEntry(convert(key), value));
+  final Map<Tonality, String> tonalityToString = Tonality.values.asNameMap().map((String key, Tonality value) => MapEntry(value, convert(key)));
+
   return Second.$fromJson(
-    field1: json[r'field_1'] as String,
-    field2: json[r'field_2'] as String,
-    field3: Tonality.values.firstWhere((Tonality it) => it.name == json[r'field_3']) as Tonality?,
+    // field1: json[r'field1'] as String,
+    field2: json[r'field2'] as String,
+    field3: stringToTonality[json[r'field3']],
+    field4: {},
+    field5: {},
+    field6: Zero(),
   );
 }

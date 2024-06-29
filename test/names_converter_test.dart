@@ -28,6 +28,7 @@ const List<String> _examples = [
   r'__$$$thisIsThe__NAME_OF$_VAriable',
 ];
 
+// ignore: unused_element
 const Map<String, List<String>> _splitExamples = {
   'camelCaseField': ['camel', 'case', 'field'],
   'some1Field': ['some', '1', 'field'],

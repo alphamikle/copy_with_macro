@@ -1,6 +1,7 @@
 import 'package:macros/macros.dart';
 
 import '../../../../service/extension/common_extensions.dart';
+import '../../../../service/extension/identifiers.dart';
 import '../../../../service/extension/macro_extensions.dart';
 import '../../../../service/extension/type_definition_builder_extension.dart';
 import '../../../../service/type/types.dart';
@@ -15,13 +16,13 @@ mixin EqualMacroDefinitionMixin on ClassInfoMixin {
     }
 
     final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
-    final Identifier coreIdentical = await builder.resolveIdentifier(dartCorePackage, 'identical');
+    final Identifier identicalId = await builder.resolveId($identical);
     final List<FieldDeclaration> allFields = classInfo.allFields;
 
     final FunctionBodyCode code = FunctionBodyCode.fromParts([
       '{\n',
       '    if (',
-      coreIdentical,
+      identicalId,
       '(this, other)) return true;\n'
           '    if (other is ',
       classInfo.identifier,
@@ -83,8 +84,8 @@ mixin EqualMacroDefinitionMixin on ClassInfoMixin {
       return;
     }
 
-    final Identifier hashObjectsFunction = await builder.resolveIdentifier(typesLibrary, 'hashObjects');
-    final NamedTypeAnnotationCode hashObjectsFunctionCode = NamedTypeAnnotationCode(name: hashObjectsFunction);
+    final Identifier hashObjectsId = await builder.resolveId($hashObjects);
+    final NamedTypeAnnotationCode hashObjectsFunctionCode = NamedTypeAnnotationCode(name: hashObjectsId);
 
     final FunctionBodyCode code = FunctionBodyCode.fromParts([
       ' => ',

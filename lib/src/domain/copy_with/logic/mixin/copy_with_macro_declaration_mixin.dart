@@ -3,6 +3,7 @@ import 'package:macros/macros.dart';
 import '../../../../service/extension/common_extensions.dart';
 import '../../../../service/extension/field_declaration_extension.dart';
 import '../../../../service/extension/formal_parameter_declaration_extension.dart';
+import '../../../../service/extension/identifiers.dart';
 import '../../../../service/extension/macro_extensions.dart';
 import '../../../../service/type/types.dart';
 import '../../../class_info/logic/mixin/class_info_mixin.dart';
@@ -31,7 +32,7 @@ mixin CopyWithMacroDeclarationMixin on ClassInfoMixin {
     }
     final List<FormalParameterDeclaration> arguments = classInfo.arguments;
     final List<FormalParameterDeclaration> nullableArguments = arguments.nullableOnly(classInfo, builder);
-    final Identifier boolIdentifier = await builder.resolveIdentifier(dartCorePackage, 'bool');
+    final Identifier boolId = await builder.resolveId($bool);
 
     final DeclarationCode declaration = DeclarationCode.fromParts([
       '  external ${classInfo.name} $copyWithLiteral({',
@@ -53,7 +54,7 @@ mixin CopyWithMacroDeclarationMixin on ClassInfoMixin {
           ...i.spread(
             nullableArguments,
             (int index, FormalParameterDeclaration value) => [
-              boolIdentifier,
+              boolId,
               '?',
               ' ',
               value.identifier,
@@ -73,7 +74,7 @@ mixin CopyWithMacroDeclarationMixin on ClassInfoMixin {
   }) async {
     final List<FieldDeclaration> allFields = [...classInfo.fields, ...classInfo.superFields];
     final List<FieldDeclaration> nullableFields = allFields.nullableOnly(classInfo, builder);
-    final Identifier boolIdentifier = await builder.resolveIdentifier(dartCorePackage, 'bool');
+    final Identifier boolId = await builder.resolveId($bool);
 
     final DeclarationCode declaration = DeclarationCode.fromParts([
       '  external ${classInfo.name} $copyWithLiteral({',
@@ -95,7 +96,7 @@ mixin CopyWithMacroDeclarationMixin on ClassInfoMixin {
           ...i.spread(
             nullableFields,
             (int index, FieldDeclaration value) => [
-              boolIdentifier,
+              boolId,
               '?',
               ' ',
               value.identifier.name,

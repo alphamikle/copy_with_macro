@@ -5,54 +5,26 @@ import 'package:macros/macros.dart';
 import '../../../../service/type/types.dart';
 import '../../../class_info/logic/mixin/class_info_mixin.dart';
 import '../../../with_constructor/logic/mixin/with_constructor_macro_declaration_mixin.dart';
+import '../converter/names_converter.dart';
 import '../interface/serializable_to_json_interface.dart';
+import '../mixin/from_json_definition_mixin.dart';
 import '../mixin/serializable_to_json_macro_declaration_mixin.dart';
-import '../mixin/serializable_to_json_macro_definition_mixin.dart';
 import '../mixin/serializable_to_json_macro_type_mixin.dart';
-
-enum NamingStrategy {
-  // camelCase
-  camel,
-
-  // PascalCase
-  pascal,
-
-  // snake_case
-  snake,
-
-  // SCREAMING_SNAKE_CASE
-  screamingSnake,
-
-  // kebab-case
-  kebab,
-
-  // Train-Case
-  train,
-
-  // dot.case
-  dot;
-
-  factory NamingStrategy.fromString(String value) {
-    return switch(value) {
-      'camel' => NamingStrategy.camel,
-      'pascal' => NamingStrategy.pascal,
-      'snake' => NamingStrategy.snake,
-      'screamingSnake' => NamingStrategy.screamingSnake,
-      'kebab' => NamingStrategy.kebab,
-      'train' => NamingStrategy.train,
-      'dot' => NamingStrategy.dot,
-      _ => throw Exception('Not supported Naming Strategy: "$value". Supported values: ${NamingStrategy.values.map((NamingStrategy it) => it.name)}'),
-    };
-  }
-}
+import '../mixin/to_json_definition_mixin.dart';
 
 macro
 
 class SerializableToJson
-    with ClassInfoMixin, WithConstructorDeclarationMixin, SerializableToJsonTypeMixin, SerializableToJsonDeclarationMixin, SerializableToJsonDefinitionMixin
+    with
+        ClassInfoMixin,
+        WithConstructorDeclarationMixin,
+        SerializableToJsonTypeMixin,
+        SerializableToJsonDeclarationMixin,
+        FromJsonDefinitionMixin,
+        ToJsonDefinitionMixin
     implements SerializableToJsonInterface, ClassTypesMacro, ClassDeclarationsMacro, ClassDefinitionMacro {
   const SerializableToJson({
-    this.namingStrategy = 'snake',
+    this.namingStrategy = 'plain',
     this.ignorePrivate = false,
   });
 
@@ -97,4 +69,7 @@ class SerializableToJson
       defineToJson(clazz, builder),
     ].wait;
   }
+
+  @override
+  String toCase(String variableName) => toSomeCase(variableName, strategy);
 }

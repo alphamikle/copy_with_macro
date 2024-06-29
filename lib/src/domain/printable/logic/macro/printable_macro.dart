@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:macros/macros.dart';
 
 import '../../../../service/extension/common_extensions.dart';
+import '../../../../service/extension/identifiers.dart';
+import '../../../../service/extension/macro_extensions.dart';
 import '../../../../service/extension/type_definition_builder_extension.dart';
 import '../../../../service/type/types.dart';
 import '../../../class_info/logic/mixin/class_info_mixin.dart';
@@ -23,10 +25,10 @@ class Printable with ClassInfoMixin implements ClassDeclarationsMacro, ClassDefi
   /// external String toString();
   @override
   FutureOr<void> buildDeclarationsForClass(ClassDeclaration clazz, MemberDeclarationBuilder builder) async {
-    final Identifier coreString = await builder.resolveIdentifier(dartCorePackage, 'String');
+    final Identifier stringId = await builder.resolveId($string);
     final DeclarationCode code = DeclarationCode.fromParts([
       '  external ',
-      coreString,
+      stringId,
       ' $toStringLiteral();',
     ]);
     builder.declareInType(code);

@@ -2,6 +2,50 @@ import '../../../../service/extension/common_extensions.dart';
 
 typedef NameConverter = String Function(String value);
 
+enum NamingStrategy {
+  // Name will be the same, as variable
+  plain,
+
+  // camelCase
+  camel,
+
+  // PascalCase
+  pascal,
+
+  // snake_case
+  snake,
+
+  // SCREAMING_SNAKE_CASE
+  screamingSnake,
+
+  // kebab-case
+  kebab,
+
+  // Train-Case
+  train,
+
+  // dot.case
+  dot;
+
+  factory NamingStrategy.fromString(String value) {
+    const Map<String, NamingStrategy> namesMap = {
+      'plain': NamingStrategy.plain,
+      'camel': NamingStrategy.camel,
+      'pascal': NamingStrategy.pascal,
+      'snake': NamingStrategy.snake,
+      'screamingSnake': NamingStrategy.screamingSnake,
+      'kebab': NamingStrategy.kebab,
+      'train': NamingStrategy.train,
+      'dot': NamingStrategy.dot,
+    };
+    final NamingStrategy? strategy = namesMap[value];
+    if (strategy == null) {
+      throw Exception('Not supported Naming Strategy: "$value". Supported values: ${NamingStrategy.values.map((NamingStrategy it) => it.name)}');
+    }
+    return strategy;
+  }
+}
+
 String _transformer({
   required String input,
   String joiner = '',
@@ -62,6 +106,20 @@ String toTrainCase(String input) => _transformer(input: input, capitalizeFirst: 
 
 String toDotCase(String input) => _transformer(input: input, lowerAll: true, joiner: '.');
 
+String toSomeCase(String input, NamingStrategy strategy) {
+  final String converted = switch (strategy) {
+    NamingStrategy.plain => input,
+    NamingStrategy.camel => toCamelCase(input),
+    NamingStrategy.pascal => toPascalCase(input),
+    NamingStrategy.snake => toSnakeCase(input),
+    NamingStrategy.screamingSnake => toScreamingSnakeCase(input),
+    NamingStrategy.kebab => toKebabCase(input),
+    NamingStrategy.train => toTrainCase(input),
+    NamingStrategy.dot => toDotCase(input),
+  };
+  return converted;
+}
+
 bool _isNumber(String? char) {
   if (char == null) {
     return false;
@@ -113,7 +171,6 @@ List<String> _split(String input) {
 
   for (int i = 0; i < input.length; i++) {
     final bool isFirst = i == 0;
-    final bool isLast = i == input.length - 1;
 
     final String char = input[i];
     final bool isNumber = _isNumber(char);

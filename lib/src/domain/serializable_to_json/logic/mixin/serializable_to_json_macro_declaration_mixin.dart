@@ -1,5 +1,7 @@
 import 'package:macros/macros.dart';
 
+import '../../../../service/extension/identifiers.dart';
+import '../../../../service/extension/macro_extensions.dart';
 import '../../../../service/type/types.dart';
 import '../../../class_info/logic/mixin/class_info_mixin.dart';
 import '../../../class_info/logic/model/class_info.dart';
@@ -10,38 +12,44 @@ mixin SerializableToJsonDeclarationMixin on ClassInfoMixin, WithConstructorDecla
     await buildDeclaration(clazz, builder);
 
     final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
-    final Identifier coreMap = await builder.resolveIdentifier(dartCorePackage, 'Map');
-    final Identifier coreString = await builder.resolveIdentifier(dartCorePackage, 'String');
-    final Identifier coreDynamic = await builder.resolveIdentifier(dartCorePackage, 'dynamic');
+    final Identifier mapId = await builder.resolveId($map);
+    final Identifier stringId = await builder.resolveId($string);
+    final Identifier dynamicId = await builder.resolveId($dynamic);
 
     // external factory Clazz.fromJson(Map<String, dynamic> json);
     final DeclarationCode code = DeclarationCode.fromParts([
       '  external static ${classInfo.name} $fromJsonLiteral(',
-      coreMap,
+      mapId,
       '<',
-      coreString,
+      stringId,
       ', ',
-      coreDynamic,
+      dynamicId,
       '> json);',
     ]);
     builder.declareInType(code);
   }
 
   Future<void> declareToJson(ClassDeclaration clazz, MemberDeclarationBuilder builder) async {
-    final Identifier coreMap = await builder.resolveIdentifier(dartCorePackage, 'Map');
-    final Identifier coreString = await builder.resolveIdentifier(dartCorePackage, 'String');
-    final Identifier coreDynamic = await builder.resolveIdentifier(dartCorePackage, 'dynamic');
+    final Identifier mapId = await builder.resolveId($map);
+    final Identifier stringId = await builder.resolveId($string);
+    final Identifier dynamicId = await builder.resolveId($dynamic);
 
     // external Map<String, dynamic> toJson();
     final DeclarationCode code = DeclarationCode.fromParts([
       '  external ',
-      coreMap,
+      mapId,
       '<',
-      coreString,
+      stringId,
       ', ',
-      coreDynamic,
+      dynamicId,
       '> $toJsonLiteral();',
     ]);
     builder.declareInType(code);
   }
 }
+
+/*
+static const Map<String, String> constants = const {
+  'first': 'Hello!',
+};
+ */
