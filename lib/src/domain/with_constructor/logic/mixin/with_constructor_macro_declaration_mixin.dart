@@ -88,20 +88,20 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
     }
 
     final DeclarationCode declaration = DeclarationCode.fromParts([
-      '  const ${classInfo.name}$cName({',
+      '  const ${classInfo.name}$cName({\n',
       for (int i = 0; i < classInfo.fields.length; i++)
         ...i.spread(
           classInfo.fields,
           (int index, FieldDeclaration value) => [
-            if (allRequired || value.type.isNonNullable) 'required ',
+            if (allRequired || value.type.isNonNullable) '    required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',
             'this.',
             value.identifier.name,
-            if (i < classInfo.fields.length - 1) ', '
+            ',\n'
           ],
         ),
-      '});',
+      '  });',
       ...await noMethodFoundFix(builder),
     ]);
     builder.declareInType(declaration);
@@ -123,19 +123,19 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
     }
 
     final DeclarationCode declaration = DeclarationCode.fromParts([
-      '  const ${classInfo.name}$cName({',
+      '  const ${classInfo.name}$cName({\n',
 
       /// ? Arguments of class itself
       for (int i = 0; i < classInfo.fields.length; i++)
         ...i.spread(
           classInfo.fields,
           (int index, FieldDeclaration value) => [
-            if (allRequired || value.type.isNonNullable) 'required ',
+            if (allRequired || value.type.isNonNullable) '    required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',
             'this.',
             value.identifier.name,
-            ', ',
+            ',\n',
           ],
         ),
 
@@ -144,25 +144,25 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
         ...i.spread(
           superPositionalParameters,
           (int index, FormalParameterDeclaration value) => [
-            if (allRequired || value.type.isNonNullable) 'required ',
+            if (allRequired || value.type.isNonNullable) '    required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',
             value.identifier.name,
-            if (superNamedParameters.isEmpty && i < superPositionalParameters.length - 1 || superNamedParameters.isNotEmpty) ', ',
+            ',\n',
           ],
         ),
       for (int i = 0; i < superNamedParameters.length; i++)
         ...i.spread(
           superNamedParameters,
           (int index, FormalParameterDeclaration value) => [
-            if (allRequired || value.type.isNonNullable) 'required ',
+            if (allRequired || value.type.isNonNullable) '    required ',
             if (explicitTypes) value.type.code,
             if (explicitTypes) ' ',
             value.identifier.name,
-            if (i < superNamedParameters.length - 1) ', ',
+            ',\n',
           ],
         ),
-      '}) : super$cName(',
+      '  }) : super$cName(',
 
       /// ? Super constructor arguments
       for (int i = 0; i < superPositionalParameters.length; i++)
@@ -170,7 +170,7 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
           superPositionalParameters,
           (int index, FormalParameterDeclaration value) => [
             value.identifier.name,
-            if (superNamedParameters.isEmpty && i < superPositionalParameters.length - 1 || superNamedParameters.isNotEmpty) ', ',
+            if (superNamedParameters.isEmpty && i < superPositionalParameters.length - 1 || superNamedParameters.isNotEmpty) ',\n',
           ],
         ),
       for (int i = 0; i < superNamedParameters.length; i++)
@@ -180,10 +180,10 @@ mixin WithConstructorDeclarationMixin on ClassInfoMixin {
             value.identifier.name,
             ': ',
             value.identifier.name,
-            if (i < superNamedParameters.length - 1) ', ',
+            if (i < superNamedParameters.length - 1) ',\n',
           ],
         ),
-      ');',
+      '  );',
       ...await noMethodFoundFix(builder),
     ]);
     builder.declareInType(declaration);

@@ -11,10 +11,12 @@ import '../mixin/from_json_definition_mixin.dart';
 import '../mixin/serializable_to_json_macro_declaration_mixin.dart';
 import '../mixin/serializable_to_json_macro_type_mixin.dart';
 import '../mixin/to_json_definition_mixin.dart';
+import '../service/from_json/field_from_json_converter.dart';
+import '../service/to_json/field_to_json_converter.dart';
 
 macro
 
-class SerializableToJson
+class BasicSerializableToJson
     with
         ClassInfoMixin,
         WithConstructorDeclarationMixin,
@@ -23,9 +25,11 @@ class SerializableToJson
         FromJsonDefinitionMixin,
         ToJsonDefinitionMixin
     implements SerializableToJsonInterface, ClassTypesMacro, ClassDeclarationsMacro, ClassDefinitionMacro {
-  const SerializableToJson({
+  const BasicSerializableToJson({
     this.namingStrategy = 'plain',
     this.ignorePrivate = false,
+    this.fromJson = const [],
+    this.toJson = const [],
   });
 
   @override
@@ -33,6 +37,12 @@ class SerializableToJson
 
   @override
   final bool ignorePrivate;
+
+  @override
+  final List<FromJsonConverterFactory> fromJson;
+
+  @override
+  final List<ToJsonConverterFactory> toJson;
 
   @override
   String get name => '\$$fromJsonLiteral';

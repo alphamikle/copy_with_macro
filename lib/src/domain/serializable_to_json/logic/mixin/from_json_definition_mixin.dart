@@ -1,7 +1,6 @@
 import 'package:macros/macros.dart';
 
 import '../../../../service/extension/common_extensions.dart';
-import '../../../../service/extension/formal_parameter_declaration_extension.dart';
 import '../../../../service/extension/identifiers.dart';
 import '../../../../service/extension/macro_extensions.dart';
 import '../../../../service/extension/type_definition_builder_extension.dart';
@@ -9,19 +8,10 @@ import '../../../../service/type/types.dart';
 import '../../../class_info/logic/mixin/class_info_mixin.dart';
 import '../../../class_info/logic/model/class_info.dart';
 import '../interface/serializable_to_json_interface.dart';
-
-typedef Mapper = String Function(Object part);
-
-Mapper partToString(TypeDefinitionBuilder builder) {
-  String mapper(Object part) {
-    if (part is Identifier) {
-      return part.name;
-    }
-    return part.toString();
-  }
-
-  return mapper;
-}
+import '../model/formal_parameter_declaration_info.dart';
+import '../service/field_json_converter.dart';
+import '../service/formal_parameter_declaration_info_collector.dart';
+import '../service/from_json/field_from_json_converter.dart';
 
 mixin FromJsonDefinitionMixin on ClassInfoMixin implements SerializableToJsonInterface {
   Future<void> defineFromJson(ClassDeclaration clazz, TypeDefinitionBuilder builder) async {
@@ -33,39 +23,73 @@ mixin FromJsonDefinitionMixin on ClassInfoMixin implements SerializableToJsonInt
 
     final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
     final List<FormalParameterDeclaration> constructorArguments = classInfo.arguments;
-    final List<EnumDeclaration> enumArguments = await constructorArguments.enumOnly(classInfo, builder);
 
-    final Identifier mapId = await builder.resolveId($map);
-    final Identifier stringId = await builder.resolveId($string);
-    final Identifier caseConverterId = await builder.resolveId($caseConverter);
-    final Identifier mapEntryId = await builder.resolveId($mapEntry);
-    final Identifier namingStrategyId = await builder.resolveId($namingStrategy);
+    final FormalParameterDeclarationInfoCollector infoCollector = FormalParameterDeclarationInfoCollector(builder: builder);
+    final List<FormalParameterDeclarationInfo> extraArguments = await infoCollector.collect(constructorArguments);
+
+    final [
+      Identifier mapId,
+      Identifier stringId,
+      Identifier caseConverterId,
+      Identifier mapEntryId,
+      Identifier namingStrategyId,
+    ] = await builder.resolveIds([
+      $map,
+      $string,
+      $caseConverter,
+      $mapEntry,
+      $namingStrategy,
+    ]);
+
+    final List<FieldFromJsonConverter> converters = [];
+
+    for (final extraArgument in extraArguments) {
+      FieldFromJsonConverter? converter;
+
+      for (final factory in fromJson) {
+        final FieldFromJsonConverter tempConverter = factory(classInfo: classInfo, fieldInfo: extraArgument, builder: builder, caseConverter: toCase);
+
+        // builder.logInfo('Converter for "${extraArgument.name}": ${tempConverter.canProduceCode()}');
+
+        if (tempConverter.canProduceCode()) {
+          converter = tempConverter;
+          continue;
+        }
+      }
+
+      if (converter == null) {
+        builder.logInfo('Not found the right fromJson converter for field "${extraArgument.name}"');
+      } else {
+        converters.add(converter);
+      }
+    }
+
+    final Identifiers identifiers = (
+      map: mapId,
+      string: stringId,
+      caseConverter: caseConverterId,
+      mapEntry: mapEntryId,
+      namingStrategy: namingStrategyId,
+      strategy: strategy,
+    );
+
+    final List<List<Object>> preConstructorCode = await Future.wait(converters.map((FieldFromJsonConverter it) async => it.preConstructorCode(identifiers)));
+    final List<List<Object>> argumentCode = await Future.wait(converters.map((FieldFromJsonConverter it) async => it.argumentCode(identifiers)));
+
+    // builder.logInfo(argumentCode.join(';'));
 
     final FunctionBodyCode code = FunctionBodyCode.fromParts([
       '{\n',
-      for (int i = 0; i < enumArguments.length; i++)
+      for (int i = 0; i < preConstructorCode.length; i++)
         ...i.spread(
-          enumArguments,
-          (int index, EnumDeclaration value) => [
-            ..._buildEnumFromJsonMap(
-              declaration: value,
-              mapId: mapId,
-              mapEntryId: mapEntryId,
-              caseConverterId: caseConverterId,
-              stringId: stringId,
-              namingStrategyId: namingStrategyId,
-            ),
-          ],
+          preConstructorCode,
+          (int index, List<Object> value) => value,
         ),
       '    return ${classInfo.name}.\$$fromJsonLiteral(\n',
-      for (int i = 0; i < constructorArguments.length; i++)
+      for (int i = 0; i < argumentCode.length; i++)
         ...i.spread(
-          constructorArguments,
-          (int index, FormalParameterDeclaration value) => [
-            "      ${value.name}: json[r'${toCase(value.name)}'] as ",
-            value.type.code,
-            ',\n',
-          ],
+          argumentCode,
+          (int index, List<Object> value) => value,
         ),
       '    );\n',
       '  }',
@@ -87,33 +111,4 @@ mixin FromJsonDefinitionMixin on ClassInfoMixin implements SerializableToJsonInt
   /// ? Color
   /// ? Class
   /// ? Enum
-  List<Object> _buildEnumFromJsonMap({
-    required EnumDeclaration declaration,
-    required Identifier mapId,
-    required Identifier stringId,
-    required Identifier caseConverterId,
-    required Identifier mapEntryId,
-    required Identifier namingStrategyId,
-  }) {
-    return [
-      '    final ',
-      mapId,
-      '<',
-      stringId,
-      ', ',
-      declaration.identifier,
-      '>',
-      ' stringTo${declaration.identifier.name} = ',
-      declaration.identifier,
-      '.values.asNameMap().map((key, value) => ',
-      mapEntryId,
-      '(',
-      caseConverterId,
-      '(key, ',
-      namingStrategyId,
-      '.',
-      strategy.name,
-      '), value));\n',
-    ];
-  }
 }

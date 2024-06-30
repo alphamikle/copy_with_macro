@@ -1,4 +1,7 @@
-import 'package:copy_with_macro/src/domain/serializable_to_json/logic/macro/serializable_to_json_macro.dart';
+import 'package:copy_with_macro/src/domain/serializable_to_json/logic/converter/names_converter.dart';
+import 'package:copy_with_macro/src/domain/serializable_to_json/logic/macro/serializable_to_json.dart';
+
+import 'combined_macro.dart';
 
 // void main() {
 //   const Genre historicalNovel = Genre(name: "Historical Novel", tonality: Tonality.drama);
@@ -50,45 +53,57 @@ enum Tonality {
 
 class Zero {}
 
-typedef Json = Map<String, dynamic>;
-
 // @SerializableToJson()
+// @CombinedMacro()
 // class First {
 //   final String field1;
 // }
 
 @SerializableToJson()
+// @CombinedMacro()
 class Second {
-  final String field2;
-  final Tonality? field3;
-  final Map<String, dynamic>? field4;
-  final Set<Map<String, dynamic>> field5;
-  final Zero field6;
+  final String stringField;
+  final int intField;
+  final double doubleField;
+  final bool boolField;
+  final Tonality? enumField;
+
+// final Map<String, dynamic>? mapField;
 }
 
 void main() {
-  // ignore: unused_local_variable
-  final Second second = Second.fromJson(
+  final Second v1 = Second.fromJson(
     {
-      'field1': 'Boo',
-      'field2': 'Foo',
-      'field3': 'comedy',
+      'stringField': 'This is String',
+      'enumField': 'thriller',
+      'intField': 123,
+      'boolField': false,
+      'doubleField': 0.456,
+      'mapField': <String, dynamic>{},
     },
   );
+  print(v1);
+
+  final Second v2 = example();
+
+  print(v2);
 }
 
-String convert(String key) => key;
+Second example() {
+  final Map<String, dynamic> json = {'enumField': 'drama'};
 
-Second example(Map<String, dynamic> json) {
-  final Map<String, Tonality> stringToTonality = Tonality.values.asNameMap().map((String key, Tonality value) => MapEntry(convert(key), value));
-  final Map<Tonality, String> tonalityToString = Tonality.values.asNameMap().map((String key, Tonality value) => MapEntry(value, convert(key)));
+  final Map<String, Tonality> stringToTonality = Tonality.values.asNameMap().map((key, value) => MapEntry(toSomeCase(key, NamingStrategy.plain), value));
+  final Map<String, Tonality> stringToTonality2 = Tonality.values.asNameMap().map((key, value) => MapEntry(toSomeCase(key, NamingStrategy.plain), value));
+  // final Map<Tonality, String> tonalityToString = Tonality.values.asNameMap().map((String key, Tonality value) => MapEntry(value, convert(key)));
+
+  final Tonality tonality = stringToTonality[json[r'enumField']] as Tonality;
 
   return Second.$fromJson(
-    // field1: json[r'field1'] as String,
-    field2: json[r'field2'] as String,
-    field3: stringToTonality[json[r'field3']],
-    field4: {},
-    field5: {},
-    field6: Zero(),
+    stringField: 'This is String v2',
+    intField: 123,
+    boolField: false,
+    doubleField: 0.456,
+    enumField: Tonality.values.byName(json[r'enumField'].toString()),
+    // mapField: <String, dynamic>{},
   );
 }

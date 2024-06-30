@@ -12,9 +12,7 @@ mixin SerializableToJsonDeclarationMixin on ClassInfoMixin, WithConstructorDecla
     await buildDeclaration(clazz, builder);
 
     final ClassInfo classInfo = await collectClassInfo(clazz: clazz, builder: builder);
-    final Identifier mapId = await builder.resolveId($map);
-    final Identifier stringId = await builder.resolveId($string);
-    final Identifier dynamicId = await builder.resolveId($dynamic);
+    final [Identifier mapId, Identifier stringId, Identifier dynamicId] = await builder.resolveIds([$map, $string, $dynamic]);
 
     // external factory Clazz.fromJson(Map<String, dynamic> json);
     final DeclarationCode code = DeclarationCode.fromParts([
@@ -30,9 +28,7 @@ mixin SerializableToJsonDeclarationMixin on ClassInfoMixin, WithConstructorDecla
   }
 
   Future<void> declareToJson(ClassDeclaration clazz, MemberDeclarationBuilder builder) async {
-    final Identifier mapId = await builder.resolveId($map);
-    final Identifier stringId = await builder.resolveId($string);
-    final Identifier dynamicId = await builder.resolveId($dynamic);
+    final [Identifier mapId, Identifier stringId, Identifier dynamicId] = await builder.resolveIds([$map, $string, $dynamic]);
 
     // external Map<String, dynamic> toJson();
     final DeclarationCode code = DeclarationCode.fromParts([
@@ -47,9 +43,3 @@ mixin SerializableToJsonDeclarationMixin on ClassInfoMixin, WithConstructorDecla
     builder.declareInType(code);
   }
 }
-
-/*
-static const Map<String, String> constants = const {
-  'first': 'Hello!',
-};
- */

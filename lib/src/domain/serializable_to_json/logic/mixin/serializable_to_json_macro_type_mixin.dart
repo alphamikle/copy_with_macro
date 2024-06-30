@@ -7,7 +7,6 @@ import '../../../class_info/logic/mixin/class_info_mixin.dart';
 mixin SerializableToJsonTypeMixin on ClassInfoMixin {
   Future<void> buildType(ClassDeclaration clazz, ClassTypeBuilder builder) async {
     final Identifier toJsonAbleId = await builder.resolveId($toJsonable);
-    final NamedTypeAnnotationCode toJsonAbleInterfaceCode = NamedTypeAnnotationCode(name: toJsonAbleId);
-    builder.appendInterfaces([toJsonAbleInterfaceCode]);
+    builder.appendInterfaces([NamedTypeAnnotationCode(name: toJsonAbleId)]);
   }
 }
