@@ -1,0 +1,16 @@
+Doctor summary (to see all details, run flutter doctor -v):
+[✓] Flutter (Channel master, 3.23.0-14.0.pre.75, on macOS 14.5 23F79 darwin-arm64, locale en-US)
+[✓] Android toolchain - develop for Android devices (Android SDK version 34.0.0)
+[✓] Xcode - develop for iOS and macOS (Xcode 15.4)
+[✓] Chrome - develop for the web
+[!] Android Studio (not installed)
+[✓] IntelliJ IDEA Ultimate Edition (version 2024.1)
+[✓] VS Code (version 1.90.2)
+[✓] Connected device (3 available)
+    ! Error: Browsing on the local area network for iPhone. Ensure the device is unlocked and attached with a cable or associated with the same local area network as this Mac.
+      The device must be opted into Developer Mode to connect wirelessly. (code -27)
+    ! Error: Browsing on the local area network for Avira’ iPhone. Ensure the device is unlocked and attached with a cable or associated with the same local area network as this Mac.
+      The device must be opted into Developer Mode to connect wirelessly. (code -27)
+[✓] Network resources
+
+! Doctor found issues in 1 category.

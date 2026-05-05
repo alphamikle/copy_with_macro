@@ -1,0 +1,6 @@
+info: [      stringField: , json[r'stringField'] as , Instance of 'NamedTypeAnnotationCode', , // common
+];[      intField: , json[r'intField'] as , Instance of 'NamedTypeAnnotationCode', , // common
+];[      doubleField: , json[r'doubleField'] as , Instance of 'NamedTypeAnnotationCode', , // common
+];[      boolField: , json[r'boolField'] as , Instance of 'NamedTypeAnnotationCode', , // common
+];[      enumField: , Instance of 'IdentifierImpl', .values.byName(, Instance of 'IdentifierImpl', (json[r'enumField'].toString(), , Instance of 'IdentifierImpl', ., plain, )), // enum
+] (macro_info at [copy_with_macro] example/main.dart:62)
